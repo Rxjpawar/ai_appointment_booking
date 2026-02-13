@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# Google credentials
+service_account.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.yaml
+.dockerignore
+
+# Docker folders (optional)
+docker/
