@@ -6,16 +6,15 @@ from langgraph.constants import START
 from dotenv import load_dotenv
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.graph import StateGraph
-from app.tools import get_current_time
 from langchain_groq import ChatGroq
 from app.mem_config import mem_client
 from app.prompt import prompt
-from app.database.tools import book_appointment,list_appointments,cancel_appointment
+from app.database.tools import book_appointment,list_appointments,cancel_appointment,get_current_date_time
 load_dotenv()
 
 # llm = init_chat_model(model_provider="openai", model="gpt-4o-mini")
 llm = ChatGroq(model="meta-llama/llama-4-scout-17b-16e-instruct")
-available_tools = [get_current_time,book_appointment,list_appointments,cancel_appointment]
+available_tools = [get_current_date_time,book_appointment,list_appointments,cancel_appointment]
 
 llm_with_tools = llm.bind_tools(tools=available_tools)
 
