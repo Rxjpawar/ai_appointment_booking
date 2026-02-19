@@ -1,28 +1,19 @@
 from typing_extensions import TypedDict
 from typing import Annotated
-
 from dotenv import load_dotenv
 from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.constants import START
 from langgraph.prebuilt import ToolNode, tools_condition
-
 from langchain_core.messages import HumanMessage
 from langchain_groq import ChatGroq
 from app.mem_config import mem_client
 from app.prompt import prompt
-from app.database.tools import (
-    book_appointment,
-    list_appointments,
-    cancel_appointment,
-    get_current_date_time
-)
+from app.database.tools import (book_appointment,list_appointments,cancel_appointment,get_current_date_time)
 
 load_dotenv()
 
-llm = ChatGroq(
-    model="meta-llama/llama-4-scout-17b-16e-instruct"
-)
+llm = ChatGroq(model="meta-llama/llama-4-scout-17b-16e-instruct")
 
 
 available_tools = [
