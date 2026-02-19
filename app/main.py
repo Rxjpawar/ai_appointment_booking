@@ -19,7 +19,7 @@ client = AsyncOpenAI()
 async def tts(text: str):
     response = await client.audio.speech.create(
         model="gpt-4o-mini-tts",
-        voice="alloy",  # try: alloy, aria, verse, breeze
+        voice="alloy",  # aaplya kde 4 voice aahet : alloy, aria, verse, breeze
         input=text
     )
 
