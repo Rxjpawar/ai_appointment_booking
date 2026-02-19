@@ -16,7 +16,6 @@ load_dotenv()
 client = AsyncOpenAI()
 
 # OPENAI TTS
-
 async def tts(text: str):
 
     if not text or not text.strip():
@@ -66,12 +65,12 @@ async def main():
         with sr.Microphone() as source:
 
             #better ambient calibration
-            recognizer.adjust_for_ambient_noise(source, duration=1)
+            recognizer.adjust_for_ambient_noise(source, duration=0.5)
 
             #listening settings
             recognizer.dynamic_energy_threshold = True
-            recognizer.pause_threshold = 2.5           # allow longer pauses
-            recognizer.non_speaking_duration = 1.0
+            recognizer.pause_threshold = 1.5           # allow longer pauses
+            recognizer.non_speaking_duration = 0.5
 
             try:
                 print("\nSpeak something...")

@@ -55,7 +55,7 @@ def chatbot(state: State):
 
     for chunk in llm_with_tools.stream([system_prompt] + state["messages"]):
         if chunk.content:
-            print(chunk.content, end="", flush=True)
+            #print(chunk.content, end="", flush=True)
             response_chunks.append(chunk.content)
 
     final_response = "".join(response_chunks)
