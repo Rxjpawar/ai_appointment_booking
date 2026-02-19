@@ -6,15 +6,31 @@ import asyncio
 from dotenv import load_dotenv
 import tempfile
 import os
-from elevenlabs.client import ElevenLabs
-from playsound import playsound
+from langchain_core.messages import HumanMessage
+import sounddevice as sd
+import soundfile as sf
+import io
 
 load_dotenv()
 
 client = AsyncOpenAI()
-eleven_client = ElevenLabs()
 
-#speech to text 
+#openai tts
+async def tts(text: str):
+    response = await client.audio.speech.create(
+        model="gpt-4o-mini-tts",
+        voice="alloy",  # try: alloy, aria, verse, breeze
+        input=text
+    )
+
+    audio_bytes =response.read()
+
+    data, samplerate = sf.read(io.BytesIO(audio_bytes))
+
+    sd.play(data, samplerate)
+    sd.wait()
+
+#openai tts
 async def openai_stt(audio_data):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
         tmp_file.write(audio_data.get_wav_data())
@@ -26,70 +42,68 @@ async def openai_stt(audio_data):
                 model="gpt-4o-mini-transcribe",
                 file=audio_file,
             )
+
         return transcript.text
+
     finally:
         os.remove(tmp_filename)
 
-# Text to speech
-async def tts(text: str):
-    audio = eleven_client.text_to_speech.convert(
-        voice_id="21m00Tcm4TlvDq8ikWAM",
-        model_id="eleven_flash_v2_5",
-        text=text
-    )
-
-    filename = "response.mp3"
-
-    with open(filename, "wb") as f:
-        for chunk in audio:
-            f.write(chunk)
-
-    playsound(filename)
-    os.remove(filename)
 
 
+async def main():
 
-def main():
-  
-    r = sr.Recognizer()
+    recognizer = sr.Recognizer()
 
-    mode = "voice"
-    with sr.Microphone() as source:
-        r.adjust_for_ambient_noise(source)
-        r.pause_threshold = 2
+    while True:
 
-        while True:
-            if mode == "voice":
-                try:
-                    print("Speak something...")
-                    audio = r.listen(source)
-                    print("Processing audio with OpenAI STT...")
-                    user_query = asyncio.run(openai_stt(audio))
-                    print(f"You : {user_query}")
-                except Exception as e:
-                    print("Bot : Error processing voice:", str(e))
+        with sr.Microphone() as source:
+            recognizer.adjust_for_ambient_noise(source)
+            recognizer.pause_threshold = 1.2
+
+            try:
+                print("Speak something...")
+                audio = recognizer.listen(source)
+
+                print("Processing audio with STT...")
+                user_query = await openai_stt(audio)
+                if not user_query or not user_query.strip():
+                    print("No speech detected. Listening again...")
                     continue
 
-            if user_query.lower() == "exit":
-                print("Exiting app...")
-                break
+                print(f"You : {user_query}")
 
-            _state = {"messages": [{"role": "user", "content": user_query}]}
+            except Exception as e:
+                print("Bot : Error processing voice:", str(e))
+                continue
 
-            graph_result = graph.invoke(_state)
-            output = graph_result["messages"][-1].content
+        if user_query.lower() == "exit":
+            print("Exiting app...")
+            break
 
-            print("Bot :", output)
+        _state = {
+            "messages": [HumanMessage(content=user_query)]
+        }
+
+        graph_result = await graph.ainvoke(_state)
+
+        last_message = graph_result["messages"][-1]
+        output = last_message.content
+
+        print("Bot :", output)
+        try:
             mem_client.add(
                 [
                     {"role": "user", "content": user_query},
                     {"role": "assistant", "content": output},
                 ],
+                user_id="raj",
+            )
+        except Exception:
+            pass
 
-                user_id="raj", # graph realtion db user id 
-                )
+        # speak response
+        await tts(output)
 
-            asyncio.run(tts(text=output))
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
