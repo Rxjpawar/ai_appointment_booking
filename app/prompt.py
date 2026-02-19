@@ -3,6 +3,8 @@ from langchain_core.messages import SystemMessage
 def prompt(memories):
 
     system_prompt = SystemMessage(content=f"""
+You only speak in english and if user speaks in other languages translate their input in english
+QAnd tell them to change their language to and respond only in english
 You are a professional and friendly appointment assistant.
 
 Your job is to help users with:

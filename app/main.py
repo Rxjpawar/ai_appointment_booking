@@ -24,8 +24,9 @@ async def tts(text: str):
 
     response = await client.audio.speech.create(
         model="gpt-4o-mini-tts",
-        voice="alloy",  # try: alloy, aria, verse, breeze
-        input=text
+        voice="nova",  # alloy, aria, verse, breeze
+        input=text,
+        instructions="Speak Fast Formal and helpful tone.",
     )
 
     audio_bytes = response.read()
@@ -37,7 +38,6 @@ async def tts(text: str):
 
 
 # OPENAI STT
-
 
 async def openai_stt(audio_data):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
@@ -77,8 +77,8 @@ async def main():
                 print("\nSpeak something...")
                 audio = recognizer.listen(
                     source,
-                    timeout=10,            # wait up to 10 sec to start speaking
-                    phrase_time_limit=30   # allow up to 30 sec speaking
+                    timeout=3,            # wait up to 3 sec to start speaking
+                    phrase_time_limit=10   # allow up to 10 sec speaking
                 )
 
                 print("Processing audio with OpenAI STT...")
