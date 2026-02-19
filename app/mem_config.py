@@ -6,52 +6,39 @@ load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GOOGLE_API_KEY=os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 config = {
     "version": "v1.1",
-    #llm
+    # "llm": {
+    #     "provider": "groq",
+    #     "config": {
+    #         "api_key": GROQ_API_KEY,
+    #         "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    #     },
+    # },
     "llm": {
-        # "provider": "openai",
-        "provider": "groq",
-        "config": {
-            "api_key": GROQ_API_KEY,
-            "model": "meta-llama/llama-4-scout-17b-16e-instruct"
-        },
-        # "config": {
-        #     "api_key": OPENAI_API_KEY,
-        #     "model": "gpt-4o-mini"
-        # }
-    
+        "provider": "openai",
+        "config": {"api_key": OPENAI_API_KEY, "model": "gpt-4o-mini"},
     },
-
-    #vector embedder
-    # "embedder": {
-    #     "provider": "openai",
-    #     "config": {
-    #         "api_key": OPENAI_API_KEY,
-    #         "model": "text-embedding-3-small"
-    #     }
-    # },
-
-
-    #vector memory 
-    # "vector_store": {
-    #     "provider": "qdrant",
-    #     "config": {
-    #         "host": "localhost",
-    #         "port": "6333"
-    #     }
-    # },
-
-    #relationships  - missing part of my life 
+    # vector embedder
+    "embedder": {
+        "provider": "openai",
+        "config": {"api_key": OPENAI_API_KEY, "model": "text-embedding-3-small"},
+    },
+    # vector memory
+    "vector_store": {
+        "provider": "qdrant",
+        "config": {"host": "localhost", "port": "6333"},
+    },
+    # relationships  - missing part of my life
     "graph_store": {
         "provider": "neo4j",
         "config": {
             "url": "bolt://localhost:7687",
             "username": "neo4j",
-            "password": "reform-william-center-vibrate-press-5829"
-        }
+            "password": "reform-william-center-vibrate-press-5829",
+        },
     },
 }
 
