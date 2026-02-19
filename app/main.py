@@ -15,22 +15,30 @@ load_dotenv()
 
 client = AsyncOpenAI()
 
-#openai tts
+# OPENAI TTS
+
 async def tts(text: str):
+
+    if not text or not text.strip():
+        return
+
     response = await client.audio.speech.create(
         model="gpt-4o-mini-tts",
-        voice="alloy",  # aaplya kde 4 voice aahet : alloy, aria, verse, breeze
+        voice="alloy",  # try: alloy, aria, verse, breeze
         input=text
     )
 
-    audio_bytes =response.read()
+    audio_bytes = response.read()
 
     data, samplerate = sf.read(io.BytesIO(audio_bytes))
-
     sd.play(data, samplerate)
     sd.wait()
 
-#openai tts
+
+
+# OPENAI STT
+
+
 async def openai_stt(audio_data):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
         tmp_file.write(audio_data.get_wav_data())
@@ -49,7 +57,6 @@ async def openai_stt(audio_data):
         os.remove(tmp_filename)
 
 
-
 async def main():
 
     recognizer = sr.Recognizer()
@@ -57,20 +64,36 @@ async def main():
     while True:
 
         with sr.Microphone() as source:
-            recognizer.adjust_for_ambient_noise(source)
-            recognizer.pause_threshold = 1.2
+
+            #better ambient calibration
+            recognizer.adjust_for_ambient_noise(source, duration=1)
+
+            #listening settings
+            recognizer.dynamic_energy_threshold = True
+            recognizer.pause_threshold = 2.5           # allow longer pauses
+            recognizer.non_speaking_duration = 1.0
 
             try:
-                print("Speak something...")
-                audio = recognizer.listen(source)
+                print("\nSpeak something...")
+                audio = recognizer.listen(
+                    source,
+                    timeout=10,            # wait up to 10 sec to start speaking
+                    phrase_time_limit=30   # allow up to 30 sec speaking
+                )
 
-                print("Processing audio with STT...")
+                print("Processing audio with OpenAI STT...")
                 user_query = await openai_stt(audio)
+
+                #ignore silence
                 if not user_query or not user_query.strip():
                     print("No speech detected. Listening again...")
                     continue
 
                 print(f"You : {user_query}")
+
+            except sr.WaitTimeoutError:
+                print("No speech detected (timeout). Listening again...")
+                continue
 
             except Exception as e:
                 print("Bot : Error processing voice:", str(e))
@@ -89,7 +112,9 @@ async def main():
         last_message = graph_result["messages"][-1]
         output = last_message.content
 
-        print("Bot :", output)
+        print("\nBot :", output)
+
+        # Save memory safely
         try:
             mem_client.add(
                 [
@@ -101,7 +126,6 @@ async def main():
         except Exception:
             pass
 
-        # speak response
         await tts(output)
 
 
