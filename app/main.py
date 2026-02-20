@@ -15,7 +15,7 @@ load_dotenv()
 
 client = AsyncOpenAI()
 
-# OPENAI TTS
+#TTS
 async def tts(text: str):
 
     if not text or not text.strip():
@@ -34,10 +34,7 @@ async def tts(text: str):
     sd.play(data, samplerate)
     sd.wait()
 
-
-
-# OPENAI STT
-
+#STT
 async def openai_stt(audio_data):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
         tmp_file.write(audio_data.get_wav_data())
@@ -73,14 +70,14 @@ async def main():
             recognizer.non_speaking_duration = 0.5
 
             try:
-                print("\nSpeak something...")
+                print("Speak something...")
                 audio = recognizer.listen(
                     source,
                     timeout=1,            # wait up to 1 sec to start speaking
                     phrase_time_limit=20   # allow up to 20 sec speaking
                 )
 
-                print("Processing audio with OpenAI STT...")
+                print("Processing audio")
                 user_query = await openai_stt(audio)
 
                 #ignore silence
@@ -111,9 +108,9 @@ async def main():
         last_message = graph_result["messages"][-1]
         output = last_message.content
 
-        print("\nBot :", output)
+        print("Bot :", output)
 
-        # Save memory safely
+        #memory
         try:
             mem_client.add(
                 [
@@ -126,7 +123,6 @@ async def main():
             pass
 
         await tts(output)
-
 
 if __name__ == "__main__":
     asyncio.run(main())
