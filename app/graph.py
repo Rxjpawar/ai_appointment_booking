@@ -5,7 +5,7 @@ from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.constants import START
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage
 from langchain_groq import ChatGroq
 from app.mem_config import mem_client
 from app.prompt import prompt
@@ -60,7 +60,7 @@ def chatbot(state: State):
 
     final_response = "".join(response_chunks)
 
-    from langchain_core.messages import AIMessage
+    
     return {"messages": [AIMessage(content=final_response)]}
 
 
