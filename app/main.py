@@ -76,8 +76,8 @@ async def main():
                 print("\nSpeak something...")
                 audio = recognizer.listen(
                     source,
-                    timeout=3,            # wait up to 3 sec to start speaking
-                    phrase_time_limit=10   # allow up to 10 sec speaking
+                    timeout=1,            # wait up to 1 sec to start speaking
+                    phrase_time_limit=20   # allow up to 20 sec speaking
                 )
 
                 print("Processing audio with OpenAI STT...")
